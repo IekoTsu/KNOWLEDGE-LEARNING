@@ -1,13 +1,7 @@
 import csrf from "csurf";
 
 const csrfProtection = csrf({
-    cookie: {
-        key: '_csrf',
-        httpOnly: true,
-        secure: true,
-        sameSite: false,
-        maxAge: 2 * 60 * 60 * 1000
-    },
+    cookie: true,
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
     value: (req) => {
         const token = 
@@ -24,16 +18,21 @@ export const generateCsrfToken = (req, res, next) => {
             const token = req.csrfToken();
             console.log('Generating new CSRF token:', token);
 
-            // Set the non-HttpOnly cookie for JavaScript access
+            // Set both cookies with same settings
             res.cookie('XSRF-TOKEN', token, {
                 httpOnly: false,
                 secure: true,
-                sameSite: 'none',
-                maxAge: 2 * 60 * 60 * 1000
+                sameSite: false,
+                path: '/'
             });
 
-            // The HttpOnly cookie is handled by csurf internally
-            
+            res.cookie('_csrf', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: false,
+                path: '/'
+            });
+
             res.json({ 
                 csrfToken: token,
                 success: true 
@@ -54,6 +53,10 @@ export const csrfMiddleware = (req, res, next) => {
     console.log('CSRF Middleware - Headers:', req.headers);
     console.log('CSRF Middleware - Cookies:', req.cookies);
     
+    if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+        return next();
+    }
+
     csrfProtection(req, res, (err) => {
         if (err) {
             console.error('CSRF Error:', {
