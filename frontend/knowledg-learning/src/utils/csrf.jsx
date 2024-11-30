@@ -3,42 +3,66 @@ import { server } from '../main';
 
 export const refreshCsrfToken = async () => {
     try {
-        const { data } = await axios.get(`${server}/api/csrf-token`, { withCredentials: true });
+        console.log('Requesting new CSRF token...');
+        const { data } = await axios.get(`${server}/api/csrf-token`, { 
+            withCredentials: true,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        });
+        
         if (data.csrfToken) {
+            // Set both header variations to be safe
             axios.defaults.headers.common['csrf-token'] = data.csrfToken;
-            console.log('CSRF token refreshed:', data.csrfToken);
+            axios.defaults.headers.common['x-csrf-token'] = data.csrfToken;
+            
+            console.log('CSRF token set in axios headers:', {
+                'csrf-token': axios.defaults.headers.common['csrf-token'],
+                'x-csrf-token': axios.defaults.headers.common['x-csrf-token']
+            });
+            
             return true;
         }
-        console.error('No CSRF token in response');
+        console.error('No CSRF token in response:', data);
         return false;
     } catch (error) {
-        console.error('Failed to refresh CSRF token:', error);
+        console.error('Failed to refresh CSRF token:', error.response || error);
         return false;
     }
 };
 
 // Axios interceptor to handle CSRF errors
+axios.interceptors.request.use(
+    config => {
+        // Log outgoing request headers
+        console.log('Request headers:', config.headers);
+        return config;
+    },
+    error => Promise.reject(error)
+);
+
 axios.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
         
-        // Prevent infinite retry loop
         if (originalRequest._retry) {
+            console.log('Request already retried, giving up');
             return Promise.reject(error);
         }
 
         if (error.response?.status === 403 && 
             error.response?.data?.message?.includes('CSRF')) {
-            console.log('CSRF error detected, attempting refresh...');
+            console.log('CSRF error detected:', error.response.data);
             originalRequest._retry = true;
             
-            // Try to refresh CSRF token
             const success = await refreshCsrfToken();
             if (success) {
-                // Update the failed request with new token
+                console.log('Retrying request with new token');
+                // Update both header variations
                 originalRequest.headers['csrf-token'] = axios.defaults.headers.common['csrf-token'];
-                console.log('Retrying request with new CSRF token');
+                originalRequest.headers['x-csrf-token'] = axios.defaults.headers.common['x-csrf-token'];
                 return axios(originalRequest);
             }
         }
