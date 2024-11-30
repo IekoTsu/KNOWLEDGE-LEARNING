@@ -1,0 +1,159 @@
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 5px;
+
+    label {
+        font-size: 1.2rem;
+        align-self: start;
+    }
+
+    input {
+        width: 100%;
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    
+    .input-group{
+        margin-top: 10px;
+    }
+
+    button {
+        margin-top: 10px;
+        width: 100%;
+    }
+  }
+
+/* Course Edit page styles */
+.course-edit-container{
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px 100px 30px 0;
+    gap: 20px;
+
+    .course-edit-header{
+        display: flex;
+        max-width: 1600px;
+        align-items: center;
+        justify-content: space-between;
+        background-color: #fff;
+        border-radius: 0 10px 10px 0;
+        padding: 20px;
+    }
+
+    .course-edit-forms-container{
+        max-width: 1600px;
+        background-color: #fff;
+        border-radius: 0 10px 10px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+        
+    .course-edit-form{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 20px;
+
+        .input-group-container{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            .thumbnail-img{
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+        }
+    }
+
+    .course-lessons-container{
+        display: flex;
+        flex-direction: column;
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 20px;
+        gap: 20px;
+
+        h3{
+            font-size: 1.5rem;
+        }
+
+        .course-lessons-list{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            li{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .course-lessons-actions{
+                    display: flex;
+                    gap: 10px;
+                }
+            }
+        }
+    }
+
+    .loading{
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* Course List page styles */
+.course-list-container{
+    background-color: #fff;
+    display: flex;
+    border-radius: 0 10px 10px 0;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+
+    .course-list{
+        
+        ul{
+            list-style: none;
+
+            li{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+
+                p{
+                    font-size: 1.2rem;
+                }
+
+                .course-list-item-actions{
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+            }
+        }
+    }
+}
+
+/* Lesson Form styles */
+.html-editor-container{
+    width: 100%;
+    height: 100%;
+}
+
+.lesson-form-container{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

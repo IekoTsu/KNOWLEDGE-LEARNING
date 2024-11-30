@@ -1,0 +1,83 @@
+.lesson-main{
+    padding: 100px 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.lesson-container{
+    width: 80%;
+    height: fit-content;
+    padding: 50px;
+    box-shadow: 0 2px 10px rgb(255, 255, 255);
+    background-color: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .lesson-description{
+        font-size: 1.2rem;
+        font-weight: 500;
+        span{
+            color: #384050;
+            font-weight: 600;
+        }
+    }
+
+    button{
+        width: fit-content;
+        padding: 10px 20px;
+        border-radius: 5px; 
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .validated-button {
+        cursor: not-allowed !important;
+    }
+}
+
+@keyframes validatePop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.check-icon {
+    margin-left: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.back-button{
+    top: 20px;
+    left: 20px;
+    background-color: #0074c7;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+
+    &:hover{
+        background-color: #005fa3;
+        transform: scale(1.02);
+    }
+}

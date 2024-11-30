@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: knowledg-learning-server
+    env: node
+    buildCommand: npm install && npm test
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Other env variables should be set in Render's dashboard 
