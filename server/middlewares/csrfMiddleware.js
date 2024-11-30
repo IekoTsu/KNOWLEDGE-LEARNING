@@ -2,6 +2,7 @@ import csrf from "csurf";
 
 const csrfProtection = csrf({
     cookie: true,
+    sameSite: false,
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
     value: (req) => {
         const token = 
