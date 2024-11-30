@@ -1,21 +1,19 @@
-import pkg from 'express-csrf-double-submit-cookie';
-const { csrfSync } = pkg;
+import doubleCsrf from 'express-csrf-double-submit-cookie';
 
 const { 
-    generateToken,
-    csrfSynchronisedProtection
-} = csrfSync({
-    getTokenFromRequest: (req) => {
-        return req.headers['csrf-token'] || 
-               req.headers['x-csrf-token'];
-    },
+    generateToken, 
+    doubleCsrfProtection 
+} = doubleCsrf({
+    getSecret: () => 'your-secret-key-here', // You should use an environment variable for this
     cookieName: 'XSRF-TOKEN',
     cookieOptions: {
         httpOnly: false,
         secure: true,
         sameSite: 'none',
         path: '/'
-    }
+    },
+    size: 64,
+    getTokenFromRequest: (req) => req.headers['csrf-token'] || req.headers['x-csrf-token']
 });
 
 export const generateCsrfToken = (req, res) => {
@@ -37,7 +35,6 @@ export const generateCsrfToken = (req, res) => {
 };
 
 export const csrfMiddleware = (req, res, next) => {
-    // Skip CSRF check for these methods
     if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
         return next();
     }
@@ -45,15 +42,14 @@ export const csrfMiddleware = (req, res, next) => {
     console.log('CSRF Check - Headers:', req.headers);
     console.log('CSRF Check - Cookies:', req.cookies);
 
-    csrfSynchronisedProtection(req, res, (error) => {
-        if (error) {
-            console.error('CSRF validation failed:', error);
-            return res.status(403).json({
-                success: false,
-                message: "CSRF token validation failed"
-            });
-        }
-        next();
-    });
+    try {
+        doubleCsrfProtection(req, res, next);
+    } catch (error) {
+        console.error('CSRF validation failed:', error);
+        return res.status(403).json({
+            success: false,
+            message: "CSRF token validation failed"
+        });
+    }
 };
  
