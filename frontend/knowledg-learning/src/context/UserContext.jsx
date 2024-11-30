@@ -14,32 +14,27 @@ export const UserContextProvider = ({children}) => {
     const [payments, setPayments] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
 
-    const setupAxiosDefaults = async () => {
-        axios.defaults.withCredentials = true;
-        const success = await refreshCsrfToken();
-        if (!success) {
-            console.error('Failed to initialize CSRF token');
-            toast.error('Failed to establish secure connection. Please refresh the page.');
-        }
-    };
-
     useEffect(() => {
-        setupAxiosDefaults();
-        const refreshInterval = setInterval(setupAxiosDefaults, 30 * 60 * 1000);
+        // Initial CSRF token setup
+        refreshCsrfToken();
+        // Refresh token every 30 minutes
+        const refreshInterval = setInterval(refreshCsrfToken, 30 * 60 * 1000);
         return () => clearInterval(refreshInterval);
     }, []);
     
     async function loginUser(email, password, navigate) {
         setBtnLoading(true);
         try {
-            const {data} = await axios.post(`${server}/api/user/login`, {email, password});
+            // Ensure we have a fresh CSRF token before login
+            await refreshCsrfToken();
+            
+            const {data} = await axios.post(`${server}/api/user/login`, 
+                {email, password},
+                {withCredentials: true}
+            );
             
             toast.success(data.message);
             localStorage.setItem("token", data.token);
-
-            // Get new CSRF token after login
-            await setupAxiosDefaults();
-
             setUser(data.user);
             setIsAuth(true);
 
@@ -49,10 +44,10 @@ export const UserContextProvider = ({children}) => {
 
             navigate("/");
         } catch (error) {
+            console.error('Login error:', error);
             setBtnLoading(false);
             setIsAuth(false);
-            toast.error(error.response.data.message);
-
+            toast.error(error.response?.data?.message || 'Login failed');
         } finally {
             setBtnLoading(false);
         }   
@@ -61,29 +56,41 @@ export const UserContextProvider = ({children}) => {
     async function registerUser(name, email, password, navigate) {
         setBtnLoading(true);
         try {
-            const {data} = await axios.post(`${server}/api/user/register`, {name, email, password});
+            // Ensure fresh CSRF token
+            await refreshCsrfToken();
+            
+            const {data} = await axios.post(`${server}/api/user/register`, 
+                {name, email, password},
+                {withCredentials: true}
+            );
 
             toast.success(data.message);
             localStorage.setItem("activationToken", data.activationToken);
-
             navigate("/verify");
         } catch (error) {
-            setBtnLoading(false);
-            toast.error(error.response.data.message);
+            console.error('Registration error:', error);
+            toast.error(error.response?.data?.message || 'Registration failed');
         } finally {
             setBtnLoading(false);
         }
-
     }
 
     async function updateProfile(name, email, navigate) {
         setBtnLoading(true);
         try {
-            const {data} = await axios.put(`${server}/api/user/update`, {name, email}, {
-                headers: {
-                    "token": localStorage.getItem("token"),
-                },
-            });
+            // Ensure fresh CSRF token
+            await refreshCsrfToken();
+            
+            const {data} = await axios.put(
+                `${server}/api/user/update`, 
+                {name, email}, 
+                {
+                    headers: {
+                        "token": localStorage.getItem("token"),
+                    },
+                    withCredentials: true
+                }
+            );
 
             if (data.activationToken) {
                 localStorage.setItem("activationToken", data.activationToken);
@@ -93,8 +100,8 @@ export const UserContextProvider = ({children}) => {
                 navigate("/account");
             }
         } catch (error) {
-            setBtnLoading(false);
-            toast.error(error.response.data.message);
+            console.error('Update profile error:', error);
+            toast.error(error.response?.data?.message || 'Update failed');
         } finally {
             setBtnLoading(false);
         }
@@ -129,7 +136,7 @@ export const UserContextProvider = ({children}) => {
             localStorage.setItem("token", data.token);
 
             // Get new CSRF token after login
-            await setupAxiosDefaults();
+            await refreshCsrfToken();
 
             setUser(data.user);
             setIsAuth(true);
@@ -171,8 +178,9 @@ export const UserContextProvider = ({children}) => {
             const {data} = await axios.get(`${server}/api/user/me`, {
                 headers: {
                     token: localStorage.getItem("token")
-                }
-            })
+                },
+                withCredentials: true
+            });
 
             setUser(data.user);
             setIsAuth(true);
@@ -181,40 +189,33 @@ export const UserContextProvider = ({children}) => {
                 setIsAdmin(true);
             }
         } catch (error) {
-            console.log(error);
+            console.error('Fetch user error:', error);
             setIsAuth(false);
-            setLoading(false);
         } finally {
             setLoading(false);
         }
     }
 
-    useEffect(() => {
-        fetchUser();
-    }, []);
-
     return (
-    <UserContext.Provider value={{
-        loginUser, 
-        user, setUser, 
-        isAuth, setIsAuth, 
-        btnLoading,
-        loading,
-        fetchUser,
-        registerUser,
-        verifyUser,
-        updateProfile,
-        changePassword,
-        fetchUserPayments,
-        payments,
-        isAdmin, setIsAdmin
+        <UserContext.Provider value={{
+            loginUser, 
+            user, setUser, 
+            isAuth, setIsAuth, 
+            btnLoading,
+            loading,
+            fetchUser,
+            registerUser,
+            verifyUser,
+            updateProfile,
+            changePassword,
+            fetchUserPayments,
+            payments,
+            isAdmin, setIsAdmin
         }}>
-
-        {children}
-        <Toaster/>
-
-    </UserContext.Provider>
-) 
+            {children}
+            <Toaster/>
+        </UserContext.Provider>
+    );
 };
 
 export const UserData = () => useContext(UserContext);

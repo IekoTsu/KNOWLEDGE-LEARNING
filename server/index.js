@@ -13,12 +13,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['http://localhost:5173', 'https://your-production-frontend.com']
+    ? ['http://localhost:5173', process.env.FRONTEND_URL].filter(Boolean)
     : 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'csrf-token', 'x-csrf-token', 'token', 'accept', 'origin', 'x-requested-with'],
-  exposedHeaders: ['set-cookie']
+  exposedHeaders: ['set-cookie', 'csrf-token', 'xsrf-token']
 }));
 
 //middlewares

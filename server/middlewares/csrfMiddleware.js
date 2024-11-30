@@ -4,22 +4,36 @@ const {
     generateToken, 
     doubleCsrfProtection 
 } = doubleCsrf({
-    getSecret: () => 'your-secret-key-here', // You should use an environment variable for this
+    getSecret: () => process.env.CSRF_SECRET || 'your-secret-key-here',
     cookieName: 'XSRF-TOKEN',
     cookieOptions: {
         httpOnly: false,
-        secure: true,
-        sameSite: 'none',
-        path: '/'
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     },
     size: 64,
-    getTokenFromRequest: (req) => req.headers['csrf-token'] || req.headers['x-csrf-token']
+    getTokenFromRequest: (req) => {
+        const token = req.headers['csrf-token'] || req.headers['x-csrf-token'];
+        console.log('Token from request:', token);
+        return token;
+    }
 });
 
 export const generateCsrfToken = (req, res) => {
     try {
         const token = generateToken(res);
-        console.log('Generated CSRF token:', token);
+        console.log('Generated new CSRF token:', token);
+        
+        // Ensure cookie is set properly
+        res.cookie('XSRF-TOKEN', token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            path: '/',
+            domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+        });
         
         res.json({ 
             csrfToken: token,
@@ -29,12 +43,14 @@ export const generateCsrfToken = (req, res) => {
         console.error('Token generation error:', error);
         res.status(500).json({
             success: false,
-            message: "Failed to generate CSRF token"
+            message: "Failed to generate CSRF token",
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };
 
 export const csrfMiddleware = (req, res, next) => {
+    // Skip for non-mutation methods
     if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
         return next();
     }
