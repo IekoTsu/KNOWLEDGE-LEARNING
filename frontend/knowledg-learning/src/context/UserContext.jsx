@@ -16,11 +16,17 @@ export const UserContextProvider = ({children}) => {
 
     const setupAxiosDefaults = async () => {
         axios.defaults.withCredentials = true;
-        await refreshCsrfToken();
+        const success = await refreshCsrfToken();
+        if (!success) {
+            console.error('Failed to initialize CSRF token');
+            toast.error('Failed to establish secure connection. Please refresh the page.');
+        }
     };
 
     useEffect(() => {
         setupAxiosDefaults();
+        const refreshInterval = setInterval(setupAxiosDefaults, 30 * 60 * 1000);
+        return () => clearInterval(refreshInterval);
     }, []);
     
     async function loginUser(email, password, navigate) {
