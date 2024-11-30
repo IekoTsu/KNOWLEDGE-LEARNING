@@ -90,7 +90,6 @@ export const AdminContextProvider = ({children}) => {
             formData.append("description", description);
             formData.append("category", category);
             formData.append("price", price);
-            console.log(thumbnail);
             if(thumbnail){
                 formData.append("file", thumbnail);
             }

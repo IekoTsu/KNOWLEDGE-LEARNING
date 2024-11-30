@@ -25,6 +25,7 @@ const CourseEdit = () => {
     const [updatedCourse, setUpdatedCourse] = useState(null);
     const [showLessonEdit, setShowLessonEdit] = useState(false);
     const [lessonId, setLessonId] = useState(null);
+    const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -36,6 +37,7 @@ const CourseEdit = () => {
             updatedCourse.price, 
             updatedCourse.thumbnail
         );
+        console.log(updatedCourse.thumbnail);
     };
 
     useEffect(() => {
@@ -62,6 +64,14 @@ const CourseEdit = () => {
         }, 0);
         
         setShowLessonForm(false);
+    };
+
+    const handleThumbnailChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setThumbnailPreview(URL.createObjectURL(file));
+            setUpdatedCourse({...updatedCourse, thumbnail: file});
+        }
     };
 
     if (courseLoading) {
@@ -93,11 +103,21 @@ const CourseEdit = () => {
 
             <div className='input-group-container'>
                 {courseLoading ? <Loading /> : (
-                    <img src={`${server}/${updatedCourse.thumbnail}`} alt='thumbnail' className='thumbnail-img'/>
+                    <img 
+                        src={thumbnailPreview || `${server}/${updatedCourse.thumbnail}`} 
+                        alt='thumbnail' 
+                        className='thumbnail-img'
+                    />
                 )}
                 <div className="input-group mb-3"> 
                     <label className='input-group-text' htmlFor='thumbnail'>Photo Miniature</label>
-                    <input type='file' className='form-control' id='thumbnail' onChange={(e) => setUpdatedCourse({...updatedCourse, thumbnail: e.target.files[0]})} accept='image/*' />
+                    <input 
+                        type='file' 
+                        className='form-control' 
+                        id='thumbnail' 
+                        onChange={handleThumbnailChange} 
+                        accept='image/*' 
+                    />
                 </div>
             </div>
 
