@@ -2,25 +2,52 @@ import csrf from "csurf";
 
 const csrfProtection = csrf({
     cookie: {
-        key: '_csrf',  // Specific cookie name
+        key: '_csrf',
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'None',
+        secure: true,
+        sameSite: false,
         maxAge: 2 * 60 * 60 * 1000
     },
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
     value: (req) => {
         const token = 
             req.headers['csrf-token'] || 
-            req.headers['x-csrf-token'] || 
-            req.headers['xsrf-token'] ||
-            req.headers['x-xsrf-token'];
-            
-        console.log('Received CSRF token:', token);
-        console.log('Request headers:', req.headers);
+            req.headers['x-csrf-token'];
+        console.log('Validating token:', token);
         return token;
     }
 });
+
+export const generateCsrfToken = (req, res, next) => {
+    csrfProtection(req, res, () => {
+        try {
+            const token = req.csrfToken();
+            console.log('Generating new CSRF token:', token);
+
+            // Set the non-HttpOnly cookie for JavaScript access
+            res.cookie('XSRF-TOKEN', token, {
+                httpOnly: false,
+                secure: true,
+                sameSite: 'none',
+                maxAge: 2 * 60 * 60 * 1000
+            });
+
+            // The HttpOnly cookie is handled by csurf internally
+            
+            res.json({ 
+                csrfToken: token,
+                success: true 
+            });
+        } catch (error) {
+            console.error('Token generation error:', error);
+            res.status(500).json({
+                success: false,
+                message: "Failed to generate CSRF token",
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
+    });
+};
 
 export const csrfMiddleware = (req, res, next) => {
     console.log('CSRF Middleware - Method:', req.method);
@@ -45,42 +72,6 @@ export const csrfMiddleware = (req, res, next) => {
             });
         }
         next();
-    });
-};
-
-export const generateCsrfToken = (req, res, next) => {
-    csrfProtection(req, res, () => {
-        try {
-            const token = req.csrfToken();
-            console.log('Generating new CSRF token:', token);
-
-            // Set both cookies to be safe
-            res.cookie('XSRF-TOKEN', token, {
-                httpOnly: false,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Lax',
-                maxAge: 2 * 60 * 60 * 1000
-            });
-            
-            res.cookie('_csrf', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Lax',
-                maxAge: 2 * 60 * 60 * 1000
-            });
-
-            res.json({ 
-                csrfToken: token,
-                success: true 
-            });
-        } catch (error) {
-            console.error('Token generation error:', error);
-            res.status(500).json({
-                success: false,
-                message: "Failed to generate CSRF token",
-                details: process.env.NODE_ENV === 'development' ? error.message : undefined
-            });
-        }
     });
 };
  
