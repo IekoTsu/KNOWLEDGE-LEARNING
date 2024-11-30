@@ -48,21 +48,18 @@ axios.interceptors.response.use(
         const originalRequest = error.config;
         
         if (originalRequest._retry) {
-            console.log('Request already retried, giving up');
             return Promise.reject(error);
         }
 
         if (error.response?.status === 403 && 
             error.response?.data?.message?.includes('CSRF')) {
-            console.log('CSRF error detected:', error.response.data);
             originalRequest._retry = true;
             
             const success = await refreshCsrfToken();
             if (success) {
-                console.log('Retrying request with new token');
-                // Update both header variations
+                // Include both CSRF and auth token in retry
                 originalRequest.headers['csrf-token'] = axios.defaults.headers.common['csrf-token'];
-                originalRequest.headers['x-csrf-token'] = axios.defaults.headers.common['x-csrf-token'];
+                originalRequest.headers['token'] = localStorage.getItem('token');
                 return axios(originalRequest);
             }
         }
@@ -72,3 +69,5 @@ axios.interceptors.response.use(
 
 // Set up default axios configuration
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
