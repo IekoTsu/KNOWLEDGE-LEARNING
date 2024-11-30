@@ -1,4 +1,5 @@
-import { csrfSync } from 'express-csrf-double-submit-cookie';
+import pkg from 'express-csrf-double-submit-cookie';
+const { csrfSync } = pkg;
 
 const { 
     generateToken,
