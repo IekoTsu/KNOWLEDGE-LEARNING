@@ -3,7 +3,7 @@ import { server } from '../main';
 
 export const refreshCsrfToken = async () => {
     try {
-        const { data } = await axios.get(`${server}/api/csrf-token`);
+        const { data } = await axios.get(`${server}/api/csrf-token`, { withCredentials: true });
         axios.defaults.headers.common['csrf-token'] = data.csrfToken;
         return true;
     } catch (error) {

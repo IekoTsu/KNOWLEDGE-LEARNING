@@ -5,7 +5,7 @@ import { CourseContextProvider } from './context/CourseContext.jsx'
 import { AdminContextProvider } from './context/AdminContext.jsx'
 import App from './App.jsx'
 
-export const server = "http://localhost:5000";
+export const server = "https://knowledge-learning.onrender.com";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
