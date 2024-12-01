@@ -35,7 +35,7 @@ export const generateCsrfToken = (req, res, next) => {
         res.cookie('XSRF-TOKEN', token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: 'None',
             maxAge: 2 * 60 * 60 * 1000
         });
         res.json({ csrfToken: token });
