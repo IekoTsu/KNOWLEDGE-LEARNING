@@ -185,6 +185,7 @@ export const UserContextProvider = ({children}) => {
 
     useEffect(() => {
         fetchUser();
+        console.log(axios.defaults.headers);
     }, []);
 
     return (

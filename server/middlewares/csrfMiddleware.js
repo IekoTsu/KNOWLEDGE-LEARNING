@@ -2,6 +2,7 @@ import csrf from "csurf";
 
 // Initialize CSRF protection
 const csrfProtection = csrf({
+    cookie: true,
     cookie: {
         httpOnly: true,
         secure: false,
@@ -14,6 +15,8 @@ const csrfProtection = csrf({
 
 // Middleware wrapper to handle CSRF errors
 export const csrfMiddleware = (req, res, next) => {
+    console.log(req.headers);
+    console.log(req.headers['csrf-token']);
     csrfProtection(req, res, (err) => {
         if (err) {
             return res.status(403).json({

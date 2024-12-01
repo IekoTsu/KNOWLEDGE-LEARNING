@@ -4,6 +4,7 @@ import "./Account.css";
 import { UserData } from '../../context/UserContext';
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { refreshCsrfToken } from '../../utils/csrf';
 
 const Account = ({user}) => {
   const {setIsAuth, setUser, setIsAdmin} = UserData();
@@ -13,6 +14,7 @@ const Account = ({user}) => {
     setUser(null);
     setIsAdmin(false);
     localStorage.removeItem("token");
+    await refreshCsrfToken();
     toast.success("Déconnexion effectuée avec succès");
     console.log(isAdmin);
   }

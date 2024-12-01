@@ -18,6 +18,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'csrf-token', 'x-csrf-token', 'token'],
 }));
 
+
 //middlewares
 app.use(express.json());
 app.use("/uploads",express.static("uploads"));

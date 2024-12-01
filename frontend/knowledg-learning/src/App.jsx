@@ -9,7 +9,7 @@ import Verify from "./pages/auth/Verify";
 import Footer from "./components/footer/footer";
 import Account from "./pages/account/Account";
 import Loading from "./components/Loading/loading";
-import Courses from "./pages/courses/courses";
+import Courses from "./pages/courses/Courses";
 import CourseDetails from "./pages/courseDetails/CourseDetails";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Lesson from "./pages/lesson/Lesson";
