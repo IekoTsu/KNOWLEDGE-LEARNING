@@ -16,8 +16,11 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
   credentials: true,
   allowedHeaders: ['Content-Type', 'csrf-token', 'x-csrf-token', 'token'],
+  exposedHeaders: ['set-cookie']
 }));
 
+// Enable trust proxy if you're behind a reverse proxy (like on Render.com)
+app.set('trust proxy', 1);
 
 //middlewares
 app.use(express.json());

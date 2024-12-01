@@ -2,11 +2,10 @@ import csrf from "csurf";
 
 // Initialize CSRF protection
 const csrfProtection = csrf({
-    cookie: true,
     cookie: {
         httpOnly: true,
-        secure: false,
-        sameSite: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
         maxAge: 2 * 60 * 60 * 1000
     },
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
@@ -34,9 +33,9 @@ export const generateCsrfToken = (req, res, next) => {
         const token = req.csrfToken();
         // Set token in cookie and send in response
         res.cookie('XSRF-TOKEN', token, {
-            HttpOnly: false, // Allow JavaScript access
-            secure: false,
-            sameSite: false,
+            httpOnly: false,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none',
             maxAge: 2 * 60 * 60 * 1000
         });
         res.json({ csrfToken: token });
