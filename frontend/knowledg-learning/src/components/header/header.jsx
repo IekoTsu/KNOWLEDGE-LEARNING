@@ -1,4 +1,5 @@
 import React from "react";
+import logo from "../../assets/logo.png";
 import "./header.css";
 import { NavLink } from "react-router-dom";
 
@@ -6,7 +7,7 @@ const Header = () => {
   return (
     <header>
       <div className="logo">
-        <NavLink to="/"><img src="/src/assets/logo.png" alt="logo"/></NavLink>
+        <NavLink to="/"><img src={logo} alt="logo"/></NavLink>
       </div>
 
       <div className="links">
