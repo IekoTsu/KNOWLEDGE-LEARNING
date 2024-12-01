@@ -5,7 +5,7 @@ const csrfProtection = csrf({
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        sameSite: 'None',
         maxAge: 2 * 60 * 60 * 1000
     },
     ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
