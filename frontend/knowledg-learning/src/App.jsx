@@ -16,7 +16,7 @@ import Lesson from "./pages/lesson/Lesson";
 import Certifications from "./pages/certifications/Certifications";
 import AccountDetails from "./pages/account/AccountDetails";
 import ChangePassword from "./pages/account/ChangePassword";
-import Backoffice from "./pages/backOffice/Backoffice";
+import Backoffice from "./pages/backOffice/BackOffice";
 import CourseEdit from "./components/backOfficeComponents/courseLessonManagement/CourseEdit";
 import CourseAdd from "./components/backOfficeComponents/courseLessonManagement/CourseAdd";
 import { UserData } from './context/UserContext';
