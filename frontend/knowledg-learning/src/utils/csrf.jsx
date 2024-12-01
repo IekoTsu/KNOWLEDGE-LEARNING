@@ -3,8 +3,16 @@ import { server } from '../main';
 
 export const refreshCsrfToken = async () => {
     try {
-        const { data } = await axios.get(`${server}/api/csrf-token`);
+        const { data } = await axios.get(`${server}/api/csrf-token`, {
+            withCredentials: true
+        });
+        
+        // Set the token in axios defaults
         axios.defaults.headers.common['csrf-token'] = data.csrfToken;
+        
+        // Log for debugging
+        console.log('New CSRF token set:', data.csrfToken);
+        
         return true;
     } catch (error) {
         console.error('Failed to refresh CSRF token:', error);
@@ -18,9 +26,16 @@ axios.interceptors.response.use(
     async error => {
         if (error.response?.status === 403 && 
             error.response?.data?.message?.includes('CSRF')) {
+            console.log('CSRF error detected, refreshing token...');
+            
             // Try to refresh CSRF token
             const success = await refreshCsrfToken();
             if (success) {
+                // Make sure the retried request includes the new token
+                error.config.headers = {
+                    ...error.config.headers,
+                    'csrf-token': axios.defaults.headers.common['csrf-token']
+                };
                 // Retry the original request
                 return axios(error.config);
             }
@@ -28,3 +43,9 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// Set up axios defaults
+axios.defaults.withCredentials = true;
+
+// Initialize CSRF token when the module loads
+refreshCsrfToken();

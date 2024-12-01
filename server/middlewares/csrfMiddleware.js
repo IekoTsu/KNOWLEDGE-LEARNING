@@ -1,44 +1,49 @@
-import csrf from "csurf";
+import crypto from 'crypto';
 
-// Initialize CSRF protection
-const csrfProtection = csrf({
-    cookie: {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'None',
-        maxAge: 2 * 60 * 60 * 1000
-    },
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
-    value: (req) => req.headers['csrf-token']
-});
+// Generate a random token
+const generateToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
 
-// Middleware wrapper to handle CSRF errors
-export const csrfMiddleware = (req, res, next) => {
-    console.log(req.headers);
-    console.log(req.headers['csrf-token']);
-    csrfProtection(req, res, (err) => {
-        if (err) {
-            return res.status(403).json({
-                success: false,
-                message: "CSRF token validation failed"
-            });
-        }
-        next();
-    });
+// Validate token
+const validateToken = (cookieToken, headerToken) => {
+    if (!cookieToken || !headerToken) return false;
+    return cookieToken === headerToken;
 };
 
 // Generate CSRF token middleware
-export const generateCsrfToken = (req, res, next) => {
-    csrfProtection(req, res, () => {
-        const token = req.csrfToken();
-        // Set token in cookie and send in response
-        res.cookie('XSRF-TOKEN', token, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            maxAge: 2 * 60 * 60 * 1000
-        });
-        res.json({ csrfToken: token });
+export const generateCsrfToken = (req, res) => {
+    const token = generateToken();
+    
+    // Set token in cookie
+    res.cookie('_csrf', token, {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
     });
+    
+    // Send token in response
+    res.json({ csrfToken: token });
+};
+
+// CSRF protection middleware
+export const csrfMiddleware = (req, res, next) => {
+    // Skip CSRF check for GET requests
+    if (req.method === 'GET') {
+        return next();
+    }
+
+    const cookieToken = req.cookies._csrf;
+    const headerToken = req.headers['csrf-token'];
+
+    if (!validateToken(cookieToken, headerToken)) {
+        return res.status(403).json({
+            success: false,
+            message: 'CSRF token validation failed'
+        });
+    }
+
+    next();
 };
  
