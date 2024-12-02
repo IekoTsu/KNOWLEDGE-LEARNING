@@ -11,6 +11,7 @@ import { CgProfile } from "react-icons/cg";
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import AdminDashboard from './AdminDashboard';
+import Loading from '../../components/Loading/loading';
 import "./Dashboard.css";
 
 /**
@@ -39,7 +40,8 @@ const Dashboard = () => {
         coursesWithLessons, 
         fetchCoursesWithLessons, 
         fetchUserCertifications, 
-        userCertifications
+        userCertifications,
+        courseLoading
     } = courseData();
     const navigate = useNavigate();
 
@@ -114,6 +116,10 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                 ))
+                            ) : courseLoading ? (
+                                <div className='loading-container' style={{backgroundColor: '#ffffff', padding: '30px', borderRadius: '10px'}}>
+                                    <Loading />
+                                </div>
                             ) : (
                                 <h2>Vous n'avez pas de cursus</h2>
                             )}

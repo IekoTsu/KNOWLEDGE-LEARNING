@@ -5,10 +5,11 @@ import { LiaCertificateSolid } from "react-icons/lia";
 import { GiDiploma } from "react-icons/gi";
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../../components/Loading/loading';
 
 const Certifications = () => {
     const navigate = useNavigate();
-    const {fetchUserCertifications, userCertifications, fetchCourse, course} = courseData();
+    const {fetchUserCertifications, userCertifications, fetchCourse, courseLoading} = courseData();
     const [courses, setCourses] = useState([]);
     const processRef = useRef(null);
 
@@ -118,6 +119,10 @@ const Certifications = () => {
                         </>
                     </div>
                 ))
+            ) : courseLoading ? (
+                <div className='loading-container' style={{backgroundColor: '#ffffff', padding: '30px', borderRadius: '10px'}}>
+                    <Loading />
+                </div>
             ) : (
                 <h2>Vous n'etes pas inscrit à aucun cours</h2>
             )}
