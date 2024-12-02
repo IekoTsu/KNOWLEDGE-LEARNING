@@ -9,7 +9,8 @@ import Loading from '../../components/Loading/loading';
 
 const Certifications = () => {
     const navigate = useNavigate();
-    const {fetchUserCertifications, userCertifications, fetchCourse, courseLoading} = courseData();
+    const {fetchUserCertifications, userCertifications, fetchCourse} = courseData();
+    const [coursesLoading, setCoursesLoading] = useState(false);
     const [courses, setCourses] = useState([]);
     const processRef = useRef(null);
 
@@ -28,6 +29,7 @@ const Certifications = () => {
             }
 
             processRef.current = setTimeout(async () => {
+                setCoursesLoading(true);
                 try {
                     const newCourses = [];
                     
@@ -59,8 +61,10 @@ const Certifications = () => {
                         setCourses(newCourses);
                     }
                 } catch (error) {
+                    console.error(error);
                 } finally {
                     if (isMounted) {
+                        setCoursesLoading(false);
                         processRef.current = null;
                     }
                 }
@@ -119,8 +123,8 @@ const Certifications = () => {
                         </>
                     </div>
                 ))
-            ) : courseLoading ? (
-                <div className='loading-container' style={{backgroundColor: '#ffffff', padding: '30px', borderRadius: '10px'}}>
+            ) : coursesLoading ? (
+                <div className='loading-container d-flex justify-content-center align-items-center'>
                     <Loading />
                 </div>
             ) : (

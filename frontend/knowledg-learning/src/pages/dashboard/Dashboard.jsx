@@ -117,7 +117,7 @@ const Dashboard = () => {
                                     </div>
                                 ))
                             ) : courseLoading ? (
-                                <div className='loading-container' style={{backgroundColor: '#ffffff', padding: '30px', borderRadius: '10px'}}>
+                                <div className='loading-container d-flex justify-content-center align-items-center'>
                                     <Loading />
                                 </div>
                             ) : (
