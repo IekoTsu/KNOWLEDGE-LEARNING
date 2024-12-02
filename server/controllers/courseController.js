@@ -166,8 +166,8 @@ export const purchaseCourse = tryCatch(async (req, res) => {
             quantity: 1,
         }],
         mode: "payment",
-        success_url: `http://localhost:5000/api/course/payment/success?session_id={CHECKOUT_SESSION_ID}&courseId=${course._id}&userId=${user._id}`,
-        cancel_url: `http://localhost:5000/api/payment/cancel?courseId=${course._id}`,
+        success_url: `${process.env.BACKEND_URL}/api/course/payment/success?session_id={CHECKOUT_SESSION_ID}&courseId=${course._id}&userId=${user._id}`,
+        cancel_url: `${process.env.BACKEND_URL}/api/payment/cancel?courseId=${course._id}`,
     });    
 
     res.status(200).json({ success: true, session });
@@ -240,8 +240,8 @@ export const purchaseLesson = tryCatch(async (req, res) => {
             quantity: 1,
         }],
         mode: "payment",
-        success_url: `http://localhost:5000/api/lesson/payment/success?session_id={CHECKOUT_SESSION_ID}&lessonId=${lesson._id}&userId=${user._id}`,
-        cancel_url: `http://localhost:5000/api/payment/cancel?courseId=${lesson.course}`,
+        success_url: `${process.env.BACKEND_URL}/api/lesson/payment/success?session_id={CHECKOUT_SESSION_ID}&lessonId=${lesson._id}&userId=${user._id}`,
+        cancel_url: `${process.env.BACKEND_URL}/api/payment/cancel?courseId=${lesson.course}`,
     });
 
     res.status(200).json({ success: true, session });

@@ -173,7 +173,7 @@ describe("Certification Controller", () => {
             await validateLesson(req, res);
 
             expect(res.status).toHaveBeenCalledWith(200);
-            expect(res.json).toHaveBeenCalledWith({ success: true, message: "Félicitations! Vous avez terminé le cursus.", certification: mockCertification });
+            expect(res.json).toHaveBeenCalledWith({ success: true, message: "Félicitations! Vous avez terminé le cursus, un email de confirmation vous a été envoyé.", certification: mockCertification });
         });
     });
 });

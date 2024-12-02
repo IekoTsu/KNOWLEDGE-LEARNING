@@ -1,10 +1,31 @@
+/**
+ * @fileoverview Login page component for user authentication
+ */
+
 import React from "react";
 import "./Auth.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { UserData } from "../../context/UserContext";
 
-
+/**
+ * @component
+ * @description Renders the login page with a form for user authentication.
+ * Includes fields for email and password, and a submit button that triggers
+ * the login process. Displays a loading indicator while the login request is processing.
+ * 
+ * Features:
+ * - Email and password input fields
+ * - Submit button with loading state
+ * - Link to registration page
+ * 
+ * @example
+ * return (
+ *   <Login />
+ * )
+ * 
+ * @returns {JSX.Element} Rendered login page
+ */
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -12,6 +33,12 @@ const Login = () => {
 
   const {loginUser, btnLoading} = UserData();
 
+  /**
+   * Handles form submission for user login
+   * @async
+   * @function submitHandler
+   * @param {Event} e - Form submission event
+   */
   const submitHandler = async(e) => {
     e.preventDefault();
     await loginUser(email, password, navigate);

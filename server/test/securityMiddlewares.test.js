@@ -107,19 +107,16 @@ describe('CSRF Middleware', () => {
             const cookies = response.headers['set-cookie']
             expect(cookies).toBeDefined()
             
-            const xsrfCookie = cookies.find(cookie => cookie.startsWith('XSRF-TOKEN='))
-            expect(xsrfCookie).toBeDefined()
+            const csrfCookie = cookies.find(cookie => cookie.startsWith('_csrf='))
+            expect(csrfCookie).toBeDefined()
 
             // Verify cookie settings
-            expect(xsrfCookie).not.toContain('HttpOnly') // Allow JavaScript access
-            expect(xsrfCookie).toContain('Path=/')
+            expect(csrfCookie).toContain('Path=/')
+            expect(csrfCookie).toContain('SameSite=None')
             
-            // Check SameSite setting based on NODE_ENV
+            // Check Secure setting based on NODE_ENV
             if (process.env.NODE_ENV === 'production') {
-                expect(xsrfCookie).toContain('SameSite=Strict')
-                expect(xsrfCookie).toContain('Secure')
-            } else {
-                expect(xsrfCookie).toContain('SameSite=Lax')
+                expect(csrfCookie).toContain('Secure')
             }
         })
     })

@@ -21,13 +21,51 @@ import CourseEdit from "./components/backOfficeComponents/courseLessonManagement
 import CourseAdd from "./components/backOfficeComponents/courseLessonManagement/CourseAdd";
 import { UserData } from './context/UserContext';
 
+/**
+ * @typedef {Object} UserDataContext
+ * @property {boolean} isAuth - Indicates if user is authenticated
+ * @property {boolean} isAdmin - Indicates if user has admin privileges
+ * @property {Object} user - Current user data
+ * @property {boolean} loading - Loading state of the application
+ */
 
+/**
+ * Available routes in the application:
+ * @route / - Home page
+ * @route /login - Login page (redirects to Home if authenticated)
+ * @route /register - Registration page (redirects to Home if authenticated)
+ * @route /account - User account page (protected)
+ * @route /verify - Email verification page
+ * @route /courses - Course listing page
+ * @route /course/:courseId/:payment? - Course details page
+ * @route /dashboard - User dashboard (protected)
+ * @route /backoffice/:model - Admin backoffice (admin only)
+ * @route /backoffice/course/:courseId/edit - Course editing (admin only)
+ * @route /backoffice/course/create - Course creation (admin only)
+ * @route /course/:courseId/lesson/:lessonId - Lesson page (protected)
+ * @route /certifications - Certifications page (protected)
+ * @route /account-details - Account details page (protected)
+ * @route /change-password - Password change page (protected)
+ */
+
+/**
+ * @component
+ * @description Main application component that handles routing and layout structure.
+ * Contains protected routes for authenticated users and admin-only routes.
+ * 
+ * @example
+ * return (
+ *   <App />
+ * )
+ * 
+ * @returns {JSX.Element} The rendered application with routing configuration
+ */
 const App = () => {
   const {isAuth, isAdmin, user, loading} = UserData();
   return (
     <>
     {loading ? (<Loading />) : 
-    (<BrowserRouter>
+    (<BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Header isAuth={isAuth} />
       <main className='main-content'>
         <Routes>
@@ -48,8 +86,8 @@ const App = () => {
           <Route path="/change-password" element={isAuth? <ChangePassword /> : <Login />} />
         </Routes>
       </main>
-        <Footer />
-      </BrowserRouter>
+      <Footer />
+    </BrowserRouter>
     )}
     </>
   );

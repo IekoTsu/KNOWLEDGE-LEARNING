@@ -1,9 +1,33 @@
+/**
+ * @fileoverview Register page component for new user registration
+ */
+
 import React, { useState } from "react";
 import "./Auth.css";
 import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../../context/UserContext";
 import toast, { Toaster } from "react-hot-toast";
 
+/**
+ * @component
+ * @description Renders the registration page with a form for new user sign-up.
+ * Includes validation for password requirements and password confirmation.
+ * Displays loading state during registration process.
+ * 
+ * Features:
+ * - Name, email, and password input fields
+ * - Password confirmation
+ * - Password validation with specific requirements
+ * - Submit button with loading state
+ * - Link to login page
+ * 
+ * @example
+ * return (
+ *   <Register />
+ * )
+ * 
+ * @returns {JSX.Element} Rendered registration page
+ */
 const Register = () => {
   const navigate = useNavigate();
   const {registerUser, btnLoading} = UserData();
@@ -12,6 +36,14 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  /**
+   * Handles form submission for user registration
+   * Validates password requirements and match before submission
+   * 
+   * @async
+   * @function submitHandler
+   * @param {Event} e - Form submission event
+   */
   const submitHandler = async(e) => {
     e.preventDefault();
 

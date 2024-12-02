@@ -1,47 +1,61 @@
+/**
+ * @fileoverview Lesson Model Schema Definition
+ * Defines the structure for course lessons in MongoDB with automatic order management
+ * @requires mongoose
+ */
+
 import mongoose from "mongoose";
 
+/**
+ * Lesson Schema
+ * @typedef {Object} LessonSchema
+ * @property {string} title - Lesson title
+ * @property {number} order - Lesson order in the course (auto-managed)
+ * @property {string} description - Lesson description
+ * @property {string} content - Lesson content/material
+ * @property {ObjectId} course - Reference to parent course
+ * @property {number} price - Individual lesson price
+ * @property {Date} createdAt - Timestamp of lesson creation
+ * @property {Date} updatedAt - Timestamp of last update
+ */
 const schema = new mongoose.Schema({
-
-    title:{
+    title: {
         type: String,
         required: true,
     },
-
-    order:{
-        type:Number,
+    order: {
+        type: Number,
         default: 1,
         required: true,
     },
-
-    description:{
+    description: {
         type: String,
         required: true,
     },
-
-    content:{
+    content: {
         type: String,
         required: true,
     },
-
-    course:{
+    course: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Course",
         required: true,
     },
-
-    price:{
+    price: {
         type: Number,
         required: true,
     },
-
-
-},
-{
+}, {
     timestamps: true,
-}
-)
+});
 
-// Add validation for maximum order
+/**
+ * Pre-validate middleware
+ * Validates that lesson order is within valid range
+ * @function
+ * @param {Function} next - Mongoose middleware next function
+ * @throws {Error} If order exceeds total lessons or is less than 1
+ */
 schema.pre('validate', async function(next) {
     if (this.isModified('order')) {
         // Count total lessons in this course
@@ -57,10 +71,17 @@ schema.pre('validate', async function(next) {
     next();
 });
 
+/**
+ * Pre-findOneAndDelete middleware
+ * Adjusts order of remaining lessons when a lesson is deleted
+ * @function
+ * @param {Function} next - Mongoose middleware next function
+ */
 schema.pre('findOneAndDelete', async function(next) {
-    const doc = this.getQuery(); // Get the query conditions
+    const doc = this.getQuery();
     const lessonToDelete = await this.model.findOne(doc);
     if (lessonToDelete) {
+        // Decrease order of all lessons after the deleted one
         const courseLessons = await this.model.find({ 
             course: lessonToDelete.course, 
             order: { $gt: lessonToDelete.order } 
@@ -74,9 +95,15 @@ schema.pre('findOneAndDelete', async function(next) {
     next();
 });
 
-// Handle order changes
+/**
+ * Pre-save middleware
+ * Manages lesson order on creation and updates
+ * @function
+ * @param {Function} next - Mongoose middleware next function
+ */
 schema.pre('save', async function(next) {
     if (this.isNew) {
+        // Set order to last position for new lessons
         const lastLesson = await this.constructor.findOne({
             course: this.course
         }).sort('-order');
@@ -109,6 +136,12 @@ schema.pre('save', async function(next) {
     next();
 });
 
+/**
+ * Pre-deleteOne middleware
+ * Updates lesson order after deletion
+ * @function
+ * @param {Function} next - Mongoose middleware next function
+ */
 schema.pre('deleteOne', { document: false, query: true }, async function(next) {
     const doc = await this.model.findOne(this.getQuery());
     if (doc) {
@@ -125,6 +158,10 @@ schema.pre('deleteOne', { document: false, query: true }, async function(next) {
     next();
 });
 
+/**
+ * Lesson Model
+ * @type {mongoose.Model}
+ */
 const Lesson = mongoose.model("Lesson", schema);
 
 export default Lesson;

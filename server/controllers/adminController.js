@@ -1,3 +1,13 @@
+/**
+ * @fileoverview Admin Controller
+ * Implements administrative operations for courses, lessons, users, and statistics
+ * @requires ../models/courseModel
+ * @requires ../models/lessonModel
+ * @requires ../models/userModel
+ * @requires ../models/certificationModel
+ * @requires fs
+ */
+
 import Course from "../models/courseModel.js";
 import tryCatch from "../middlewares/tryCatch.js";
 import Lesson from "../models/lessonModel.js";
@@ -5,6 +15,20 @@ import User from "../models/userModel.js";
 import Certification from "../models/certificationModel.js";
 import { rm } from "fs";
 
+/**
+ * Create a new course
+ * @async
+ * @function createCourse
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.title - Course title
+ * @param {string} req.body.description - Course description
+ * @param {string} req.body.category - Course category
+ * @param {number} req.body.price - Course price
+ * @param {Object} req.file - Uploaded thumbnail file
+ * @returns {Promise<void>}
+ */
 export const createCourse = tryCatch(async (req, res) => {
 
     const { title, description, category, price, } = req.body;
@@ -22,6 +46,17 @@ export const createCourse = tryCatch(async (req, res) => {
     res.status(201).json({ success: true, message: "Cursus créé avec succès", course });    
 }) 
 
+/**
+ * Update an existing course
+ * @async
+ * @function updateCourse
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.params.courseId - Course ID
+ * @param {Object} req.file - Updated thumbnail file
+ * @returns {Promise<void>}
+ */
 export const updateCourse = tryCatch(async (req, res) => {
     const { title, description, category, price } = req.body;
     const course = await Course.findById(req.params.courseId);
@@ -57,6 +92,15 @@ export const updateCourse = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, message: "Cursus mis à jour avec succès", course });
 })
 
+/**
+ * Delete a course and related data
+ * @async
+ * @function deleteCourse
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.courseId - Course ID
+ * @returns {Promise<void>}
+ */
 export const deleteCourse = tryCatch(async (req, res) => {
     const course = await Course.findById(req.params.courseId);
     if(!course) return res.status(404).json({ success: false, message: "Cursus non trouvé" });
@@ -82,6 +126,16 @@ export const deleteCourse = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, message: "Cursus supprimé avec succès" });
 })
 
+/**
+ * Create a new lesson in a course
+ * @async
+ * @function createLesson
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.params.courseId - Course ID
+ * @returns {Promise<void>}
+ */
 export const createLesson = tryCatch(async (req, res) => { 
     const { title, description, content, price } = req.body;
 
@@ -106,6 +160,15 @@ export const createLesson = tryCatch(async (req, res) => {
 
 })
 
+/**
+ * Update an existing lesson
+ * @async
+ * @function updateLesson
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.lessonId - Lesson ID
+ * @returns {Promise<void>}
+ */
 export const updateLesson = tryCatch(async (req, res) => {
     const { title, description, content, price, order } = req.body;
     const lesson = await Lesson.findById(req.params.lessonId);
@@ -124,6 +187,15 @@ export const updateLesson = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, message: "Leçon mise à jour avec succès", lessons : course.lessons });
 })
 
+/**
+ * Delete a lesson and update related data
+ * @async
+ * @function deleteLesson
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.lessonId - Lesson ID
+ * @returns {Promise<void>}
+ */
 export const deleteLesson = tryCatch(async (req, res) => {
     const lesson = await Lesson.findById(req.params.lessonId);
 
@@ -143,12 +215,29 @@ export const deleteLesson = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, message: "Leçon supprimée avec succès", lessons : course.lessons });    
 })
 
+/**
+ * Delete a user
+ * @async
+ * @function deleteUser
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.userId - User ID
+ * @returns {Promise<void>}
+ */
 export const deleteUser = tryCatch(async (req, res) => {
     const user = await User.findById(req.params.userId);
     await User.deleteOne({ _id: user._id });
     res.status(200).json({ success: true, message: "Utilisateur supprimé avec succès" });
 })
 
+/**
+ * Get platform statistics
+ * @async
+ * @function getAllStats
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getAllStats = tryCatch(async (req, res) => {
     const totalCourses = await Course.countDocuments();
     const totalLessons = await Lesson.countDocuments();
@@ -163,6 +252,16 @@ export const getAllStats = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, stats });    
 })  
 
+/**
+ * Update user details
+ * @async
+ * @function updateUser
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.userId - User ID
+ * @param {Object} req.body - Request body
+ * @returns {Promise<void>}
+ */
 export const updateUser = tryCatch(async (req, res) => {
     const { name, role, course } = req.body;
     const user = await User.findById(req.params.userId);
@@ -190,7 +289,16 @@ export const updateUser = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, message: "Utilisateur mis à jour avec succès", user });
 })
 
-
+/**
+ * Unenroll user from a course
+ * @async
+ * @function unenrollUserFromCourse
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.userId - User ID
+ * @param {string} req.params.courseId - Course ID
+ * @returns {Promise<void>}
+ */
 export const unenrollUserFromCourse = tryCatch(async (req, res) => {
     const user = await User.findById(req.params.userId);
     const course = await Course.findById(req.params.courseId);

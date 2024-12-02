@@ -142,6 +142,32 @@ form {
                     gap: 10px;
                 }
             }
+        } 
+    }
+}
+
+/* Course Add page styles */
+.course-add-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 100px 30px 0;
+    gap: 20px;
+
+    .course-add-section{
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        margin:0 120px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        img{
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     }
 }

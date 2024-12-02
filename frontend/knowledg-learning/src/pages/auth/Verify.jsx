@@ -1,21 +1,49 @@
+/**
+ * @fileoverview Verify page component for email verification after registration
+ */
+
 import React, { useState } from 'react'
 import "./Auth.css";
 import { UserData } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * @component
+ * @description Renders the verification page where users enter their email verification code.
+ * Uses the activation token stored in localStorage and handles the verification process.
+ * Displays loading state during verification.
+ * 
+ * Features:
+ * - OTP input field
+ * - Submit button with loading state
+ * - Verification status message
+ * 
+ * @example
+ * return (
+ *   <Verify />
+ * )
+ * 
+ * @returns {JSX.Element} Rendered verification page
+ */
 const verify = () => {
   const navigate = useNavigate();
   const {verifyUser, btnLoading} = UserData();
   const [otp, setOtp] = useState("");
   const activationToken = localStorage.getItem("activationToken");
 
+  /**
+   * Handles form submission for email verification
+   * @async
+   * @function submitHandler
+   * @param {Event} e - Form submission event
+   */
   const submitHandler = async(e) => {
     e.preventDefault();
     await verifyUser(activationToken, Number(otp), navigate);
   }
 
   return (
-    <div className="auth-page">
+    <main className="auth-page background-pattern">
       <div className="auth-form">
         <h1>Verify</h1>
         <p>Please check your email for the verification code.</p>
@@ -42,7 +70,7 @@ const verify = () => {
             </button> 
         </form>
       </div>
-    </div>
+    </main>
   );
 };
 

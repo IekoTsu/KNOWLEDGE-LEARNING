@@ -1,17 +1,40 @@
+/**
+ * @fileoverview CSRF Protection Middleware
+ * Implements CSRF token generation and validation for securing cross-site requests
+ * @requires crypto
+ */
+
 import crypto from 'crypto';
 
-// Generate a random token
+/**
+ * Generates a cryptographically secure random token
+ * @function generateToken
+ * @returns {string} A 32-byte hexadecimal token
+ * @private
+ */
 const generateToken = () => {
     return crypto.randomBytes(32).toString('hex');
 };
 
-// Validate token
+/**
+ * Validates the CSRF token from cookie against the token from header
+ * @function validateToken
+ * @param {string} cookieToken - Token stored in cookie
+ * @param {string} headerToken - Token received from request header
+ * @returns {boolean} True if tokens match, false otherwise
+ * @private
+ */
 const validateToken = (cookieToken, headerToken) => {
     if (!cookieToken || !headerToken) return false;
     return cookieToken === headerToken;
 };
 
-// Generate CSRF token middleware
+/**
+ * Middleware to generate and set CSRF token
+ * @function generateCsrfToken
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ */
 export const generateCsrfToken = (req, res) => {
     const token = generateToken();
     
@@ -27,7 +50,14 @@ export const generateCsrfToken = (req, res) => {
     res.json({ csrfToken: token });
 };
 
-// CSRF protection middleware
+/**
+ * Middleware to validate CSRF token
+ * @function csrfMiddleware
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next middleware function
+ * @returns {void}
+ */
 export const csrfMiddleware = (req, res, next) => {
     // Skip CSRF check for GET requests
     if (req.method === 'GET') {

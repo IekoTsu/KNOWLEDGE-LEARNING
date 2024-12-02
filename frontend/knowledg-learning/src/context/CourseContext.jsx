@@ -1,10 +1,63 @@
+/**
+ * @fileoverview CourseContext provides state management and operations for courses, lessons, and certifications
+ */
+
 import { createContext, useContext, useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { server } from "../main";
 import axios from "axios";
 
+/**
+ * @typedef {Object} Course
+ * @property {string} _id - Course unique identifier
+ * @property {string} title - Course title
+ * @property {string} description - Course description
+ * @property {string} category - Course category
+ * @property {number} price - Course price
+ * @property {string} thumbnail - Course thumbnail URL
+ * @property {string[]} lessons - Array of lesson IDs
+ */
+
+/**
+ * @typedef {Object} Lesson
+ * @property {string} _id - Lesson unique identifier
+ * @property {string} title - Lesson title
+ * @property {string} description - Lesson description
+ * @property {string} content - Lesson content
+ * @property {number} price - Lesson price
+ * @property {number} order - Lesson order in course
+ */
+
+/**
+ * @typedef {Object} CourseContextType
+ * @property {Course[]} courses - Array of all courses
+ * @property {Course} course - Currently selected course
+ * @property {boolean} courseLoading - Loading state for course operations
+ * @property {Function} fetchCourses - Fetches all courses
+ * @property {Function} fetchCourse - Fetches a specific course
+ * @property {Function} fetchLessonsDetails - Fetches details for course lessons
+ * @property {Lesson[]} lessonsSellingDetails - Array of lesson details
+ * @property {Function} fetchCoursesWithLessons - Fetches courses with their lessons
+ * @property {Array} coursesWithLessons - Courses with their lessons
+ * @property {Function} fetchLesson - Fetches a specific lesson
+ * @property {Lesson} lesson - Currently selected lesson
+ * @property {boolean} lessonLoading - Loading state for lesson operations
+ * @property {Function} setCertification - Sets certification data
+ * @property {Function} fetchCertification - Fetches certification for a course
+ * @property {Object} certification - Certification data
+ * @property {Function} fetchUserCertifications - Fetches user's certifications
+ * @property {Array} userCertifications - User's certifications
+ */
+
+/** @type {React.Context<CourseContextType>} */
 const CourseContext = createContext();
 
+/**
+ * @component
+ * @description Provider component that wraps the application to provide course-related functionality
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child components
+ */
 export const CourseContextProvider = ({children}) => { 
     const [courses, setCourses] = useState([]);
     const [course, setCourse] = useState(null);
@@ -17,19 +70,33 @@ export const CourseContextProvider = ({children}) => {
     const [courseLoading, setCourseLoading] = useState(false);
     const [lessonLoading, setLessonLoading] = useState(false);
     
+    /**
+     * Fetches a specific course by ID
+     * @async
+     * @function fetchCourse
+     * @param {string} courseId - Course identifier
+     * @returns {Promise<Course|null>} The fetched course or null if not found
+     */
     async function fetchCourse(courseId) {
         setCourseLoading(true);
         try {
             const {data} = await axios.get(`${server}/api/course/${courseId}`); 
             setCourse(data.course);
+            return data.course;
 
         } catch (error) {
             console.log(error);
+            return null;
         } finally {
             setCourseLoading(false); 
         } 
     }
 
+    /**
+     * Fetches all courses
+     * @async
+     * @function fetchCourses
+     */
     async function fetchCourses() {
         setCourseLoading(true);
         try {
@@ -42,6 +109,12 @@ export const CourseContextProvider = ({children}) => {
         }
     }
 
+    /**
+     * Fetches details for an array of lesson IDs
+     * @async
+     * @function fetchLessonsDetails
+     * @param {string[]} courseLessons - Array of lesson IDs
+     */
     async function fetchLessonsDetails(courseLessons) {
         setLessonLoading(true);
         try {
@@ -156,4 +229,10 @@ export const CourseContextProvider = ({children}) => {
     )
 }   
 
+/**
+ * Custom hook to use the CourseContext
+ * @function courseData
+ * @returns {CourseContextType} Course context values and functions
+ * @throws {Error} If used outside of CourseContextProvider
+ */
 export const courseData = () => useContext(CourseContext);

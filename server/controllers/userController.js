@@ -1,3 +1,13 @@
+/**
+ * @fileoverview User Controller
+ * Implements user-related business logic including authentication, profile management, and payment history
+ * @requires ../models/userModel
+ * @requires ../models/paymentModel
+ * @requires jsonwebtoken
+ * @requires bcrypt
+ * @requires crypto
+ */
+
 import User from "../models/userModel.js";
 import Payment from "../models/paymentModel.js";
 import jwt from "jsonwebtoken";
@@ -6,6 +16,18 @@ import tryCatch from "../middlewares/tryCatch.js";
 import bcrypt from "bcrypt";  
 import crypto from "crypto";
 
+/**
+ * Register a new user
+ * @async
+ * @function register
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.name - User's name
+ * @param {string} req.body.email - User's email
+ * @param {string} req.body.password - User's password
+ * @returns {Promise<void>}
+ */
 export const register = tryCatch(async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -44,7 +66,18 @@ export const register = tryCatch(async (req, res) => {
    });
 });
 
- export const verifyUser = tryCatch(async (req, res) => {
+/**
+ * Verify user email with OTP
+ * @async
+ * @function verifyUser
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.activationToken - JWT token containing user data
+ * @param {string} req.body.otp - One-time password for verification
+ * @returns {Promise<void>}
+ */
+export const verifyUser = tryCatch(async (req, res) => {
   const { activationToken, otp } = req.body;
 
   const verify = jwt.verify(activationToken, process.env.ACTIVATION_TOKEN_SECRET);
@@ -68,7 +101,17 @@ export const register = tryCatch(async (req, res) => {
   res.status(200).json({ success: true, message: "Email vérifié avec succès", user: user, token: token });
  });
 
-
+/**
+ * User login
+ * @async
+ * @function login
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.email - User's email
+ * @param {string} req.body.password - User's password
+ * @returns {Promise<void>}
+ */
 export const login = tryCatch(async (req, res) => {
 
   const { email, password } = req.body;
@@ -88,6 +131,14 @@ export const login = tryCatch(async (req, res) => {
   res.status(200).json({ success: true, message: "Connexion réussie", token: token, user: user });   
 })
 
+/**
+ * Get current user profile
+ * @async
+ * @function myProfile
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const myProfile = tryCatch(async (req, res) => {
   const user = await User.findById(req.user.id);
   
@@ -95,6 +146,17 @@ export const myProfile = tryCatch(async (req, res) => {
 
 })
 
+/**
+ * Update user profile
+ * @async
+ * @function updateProfile
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.name - Updated name
+ * @param {string} req.body.email - Updated email
+ * @returns {Promise<void>}
+ */
 export const updateProfile = tryCatch(async (req, res) => {
   const { name, email } = req.body;
   const user = await User.findById(req.user.id);
@@ -139,6 +201,16 @@ export const updateProfile = tryCatch(async (req, res) => {
   }
 })
 
+/**
+ * Change user password
+ * @async
+ * @function changePassword
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.password - New password
+ * @returns {Promise<void>}
+ */
 export const changePassword = tryCatch(async (req, res) => {
   const { password } = req.body;
   const user = await User.findById(req.user.id);
@@ -152,6 +224,15 @@ export const changePassword = tryCatch(async (req, res) => {
   res.status(200).json({ success: true, message: "Mot de passe mis à jour avec succès" });
 })
 
+/**
+ * Get user payment history
+ * @async
+ * @function getUserPayments
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {string} req.params.userId - User ID
+ * @returns {Promise<void>}
+ */
 export const getUserPayments = tryCatch(async (req, res) => {
   const user = await User.findById(req.params.userId);
 
@@ -161,6 +242,14 @@ export const getUserPayments = tryCatch(async (req, res) => {
   res.status(200).json({ success: true, payments: payments });
 })
 
+/**
+ * Get all users (admin only)
+ * @async
+ * @function getAllUsers
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
 export const getAllUsers = tryCatch(async (req, res) => {
   const users = await User.find();
   res.status(200).json({ success: true, users: users });

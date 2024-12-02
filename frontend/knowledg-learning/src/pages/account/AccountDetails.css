@@ -1,8 +1,5 @@
 .account-details-main {
     padding: 120px 0px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
     gap: 70px;
 
 
@@ -81,6 +78,8 @@
 .account-payment-section {
     margin: 0 0 0 120px;
     border-radius: 10px 0px 0px 10px;
+    min-width: 1000px;
+    align-self: flex-end;
 
     .accordion-body {
         border: 1px solid #ccc;

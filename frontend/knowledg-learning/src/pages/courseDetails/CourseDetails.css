@@ -93,10 +93,9 @@
     text-align: center;
 
     .btn {
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        padding: 0;
+        width: fit-content;
+        height: fit-content;
+        padding: 10px;
         background-color: #0074c7;
     }
 
