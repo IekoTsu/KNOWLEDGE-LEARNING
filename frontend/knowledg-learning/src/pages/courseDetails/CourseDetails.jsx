@@ -10,6 +10,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { courseData } from '../../context/CourseContext'
 import { loadStripe } from '@stripe/stripe-js';
 import { FaArrowLeft } from 'react-icons/fa';
+import Loading from '../../components/Loading/loading';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 
@@ -36,7 +37,7 @@ import axios from 'axios';
  */
 const CourseDetails = () => {
     const {user, isAuth} = UserData();
-    const {course, fetchCourse, lessonsSellingDetails, fetchLessonsDetails} = courseData();
+    const {course, fetchCourse, lessonsSellingDetails, fetchLessonsDetails, courseLoading} = courseData();
     const {courseId, payment} = useParams();
     const navigate = useNavigate();
     const paymentToastShown = useRef(false);
@@ -113,7 +114,11 @@ const CourseDetails = () => {
 
     return (
         <main className="background-pattern">
-            {course && (
+            {courseLoading ? (
+                <div className='loading-container' style={{backgroundColor: '#ffffff', padding: '30px', borderRadius: '10px'}}>
+                    <Loading />
+                </div>
+            ) : course && (
                 <section className='course-details-section'>
                     <div className='course-details-container'>
                         <div className='course-details-header'> 
