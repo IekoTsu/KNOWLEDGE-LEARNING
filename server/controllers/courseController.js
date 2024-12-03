@@ -9,8 +9,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * @description Stripe instance initialization with secret key
+ */
 export const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
 
+/**
+ * @description Fetch all courses from the database
+ * @route GET /api/courses
+ * @returns {Object} 200 - success response with courses array
+ */
 export const getAllCourses = tryCatch(async (req, res) => {
 
     const courses = await Course.find();
@@ -18,6 +26,13 @@ export const getAllCourses = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, courses });   
 })  
 
+/**
+ * @description Fetch a specific course by ID
+ * @route GET /api/courses/:courseId
+ * @param {string} req.params.courseId - Course ID
+ * @returns {Object} 200 - success response with course details
+ * @returns {Object} 404 - course not found
+ */
 export const getCourseById = tryCatch(async (req, res) => {
     
     const course = await Course.findById(req.params.courseId);
@@ -27,6 +42,14 @@ export const getCourseById = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, course });    
 })
 
+/**
+ * @description Get all lessons for a specific course, filtered by user access
+ * @route GET /api/courses/:courseId/lessons
+ * @param {string} req.params.courseId - Course ID
+ * @param {Object} req.user - Authenticated user object
+ * @returns {Object} 200 - success response with lessons array
+ * @returns {Object} 404 - course or lessons not found
+ */
 export const getLessonsByCourseId = tryCatch(async (req, res) => {
 
     const course = await Course.findById(req.params.courseId);
@@ -135,6 +158,15 @@ export const getUserCourses = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, coursesWithLessons });   
 })
 
+/**
+ * @description Process course purchase through Stripe
+ * @route POST /api/courses/:courseId/purchase
+ * @param {string} req.params.courseId - Course ID
+ * @param {Object} req.user - Authenticated user object
+ * @returns {Object} 200 - success response with Stripe session
+ * @returns {Object} 400 - already enrolled error
+ * @returns {Object} 404 - course not found
+ */
 export const purchaseCourse = tryCatch(async (req, res) => {
     const user = await User.findById(req.user._id);
     const course = await Course.findById(req.params.courseId);
@@ -173,6 +205,14 @@ export const purchaseCourse = tryCatch(async (req, res) => {
     res.status(200).json({ success: true, session });
 })
 
+/**
+ * @description Handle successful course payment webhook from Stripe
+ * @route GET /api/course/payment/success
+ * @param {string} req.query.session_id - Stripe session ID
+ * @param {string} req.query.courseId - Course ID
+ * @param {string} req.query.userId - User ID
+ * @returns {void} Redirects to success/failure page
+ */
 export const coursePaymentSuccess = tryCatch(async (req, res) => {
     const session = await stripeInstance.checkout.sessions.retrieve(req.query.session_id, { expand: ['payment_intent.payment_method'] });
 
@@ -195,7 +235,9 @@ export const coursePaymentSuccess = tryCatch(async (req, res) => {
 
         user.enrollment.push(course._id);
         for(let i = 0; i < course.lessons.length; i++) {
-            user.purchasedLessons.push(course.lessons[i]._id);
+            if(!user.purchasedLessons.includes(course.lessons[i]._id)) {
+                user.purchasedLessons.push(course.lessons[i]._id);
+            }
         }
 
         const courseCertification = await Certification.findOne({ course: course._id, user: user._id });
@@ -217,6 +259,15 @@ export const coursePaymentSuccess = tryCatch(async (req, res) => {
     }
 }) 
 
+/**
+ * @description Process individual lesson purchase through Stripe
+ * @route POST /api/lessons/:lessonId/purchase
+ * @param {string} req.params.lessonId - Lesson ID
+ * @param {Object} req.user - Authenticated user object
+ * @returns {Object} 200 - success response with Stripe session
+ * @returns {Object} 400 - already purchased error
+ * @returns {Object} 404 - lesson not found
+ */
 export const purchaseLesson = tryCatch(async (req, res) => {
     const user = await User.findById(req.user._id);
 
