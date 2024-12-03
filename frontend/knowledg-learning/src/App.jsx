@@ -84,6 +84,7 @@ const App = () => {
           <Route path="/certifications" element={isAuth? <Certifications /> : <Login />} />
           <Route path="/account-details" element={isAuth? <AccountDetails /> : <Login />} />
           <Route path="/change-password" element={isAuth? <ChangePassword /> : <Login />} />
+          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
       <Footer />

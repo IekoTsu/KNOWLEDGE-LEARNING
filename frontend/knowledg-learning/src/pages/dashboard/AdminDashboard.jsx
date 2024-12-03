@@ -65,7 +65,7 @@ const AdminDashboard = () => {
                 </a>
             </div>
             <hr />
-            <h2>Stats</h2>
+            <h2>Statistiques</h2>
             <div className='stats-container'>
                 <div className='stat-container'>
                     <div className='stat'>
